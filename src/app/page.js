@@ -8,6 +8,7 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import axios from "axios";
+import {Combobox} from "@/components/Combobox";
 
 export default function Home() {
     const [ticker, setTicker] = useState('EXPL44');
@@ -106,17 +107,12 @@ export default function Home() {
                         <PopoverTrigger asChild>
                             <Button variant="outline">Open popover</Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-500">
+                        <PopoverContent className="w-700">
                             <div className="grid gap-4">
                                 <div className="grid gap-3">
                                     <div className="grid grid-cols-3 items-center gap-4">
                                         <Label htmlFor="ticker">Ticker</Label>
-                                        <Input
-                                            id="ticker"
-                                            defaultValue={ticker}
-                                            onChange={handleTickerChange}
-                                            className="col-span-2 h-8"
-                                        />
+                                        <Combobox></Combobox>
                                         <datalist id="tickers-sugestoes">
                                             {suggestions.map((suggestion, index) => (
                                                 <option key={index} value={suggestion} />
