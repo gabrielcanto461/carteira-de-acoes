@@ -1,13 +1,12 @@
 'use client'
 
-
 import React, {useEffect, useState} from "react";
-import axios from "axios";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {Button} from "@/components/ui/button";
 import Link from 'next/link'
+import axios from "axios";
 
 export default function Home() {
 
@@ -27,6 +26,19 @@ export default function Home() {
 
     const [tickets, setTickets] = useState([]);
 
+
+    useEffect(() => {
+        const searchForAllPositions = async () => {
+            try {
+                const res = await axios.get("http://localhost:8080/position/all");
+                setTickets(res.data);
+            } catch (error) {
+                console.error("Erro ao buscar todas as posições: ", error);
+            }
+        }
+        searchForAllPositions();
+    }, [])
+
     return (
         <div className="flex min-h-screen bg-slate-50 items-center flex-col gap-2">
             <Card className="w-[800px] h-[150px]">
@@ -35,7 +47,9 @@ export default function Home() {
                     <CardDescription>{getCurrentDate()}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1>R$ 15800,00</h1>
+                    <h1>
+                        R$ {tickets.reduce((acc, ticket) => acc + (ticket.price * ticket.quantity), 0).toFixed(2)}
+                    </h1>
                 </CardContent>
             </Card>
             <Card className="w-[800px] h-[100%]">
@@ -58,13 +72,14 @@ export default function Home() {
                                 {tickets.map((ticket, index) => (
                                     <TableRow key={index}>
                                         <TableCell className="font-medium">{ticket.ticker}</TableCell>
-                                        <TableCell>{ticket.name}</TableCell>
-                                        <TableCell>{ticket.currentPrice}</TableCell>
+                                        <TableCell>Nome da empresa</TableCell> {/* Substitua por uma propriedade real quando disponível */}
+                                        <TableCell>{`R$ ${ticket.price.toFixed(2)}`}</TableCell>
                                         <TableCell className="text-green-700">{ticket.quantity}</TableCell>
-                                        <TableCell>R$ {(ticket.currentPrice.substring(3)*ticket.quantity).toFixed(2)}</TableCell>
+                                        <TableCell>R$ {(ticket.price * ticket.quantity).toFixed(2)}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
+
                         </Table>
                     </ScrollArea>
                 </CardContent>
@@ -72,7 +87,7 @@ export default function Home() {
                     <Button asChild>
                         <Link href="/stocks">
                             Adicionar nova ação</Link>
-                        </Button>
+                    </Button>
                 </CardFooter>
             </Card>
         </div>

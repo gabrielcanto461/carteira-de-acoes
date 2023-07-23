@@ -6,14 +6,14 @@ import {Input} from "@/components/ui/input";
 import React, {useEffect, useState} from "react";
 import axios from "axios";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
-import {console} from "next/dist/compiled/@edge-runtime/primitives";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 
 export default function Stocks() {
-    const [ticker, setTicker] = useState("");
-    const [name, setName] = useState('Empresa exemplo');
-    const [currentPrice, setCurrentPrice] = useState('R$ 10.00');
+    const [ticker, setTicker] = useState(null);
+    const [name, setName] = useState('Nome da empresa');
+    const [price, setPrice] = useState('R$ 10.00');
     const [quantity, setQuantity] = useState('2');
-
+    const [positions, setPositions] = useState([]);
     const [availableTickers, setAvailableTickers] = useState([]);
 
     useEffect(() => {
@@ -28,12 +28,27 @@ export default function Stocks() {
         searchForAvailableTickers();
     }, []);
 
+    useEffect(() => {
+        const searchForTicker = async (ticker) => {
+            try {
+                const res = await axios.get(`https://brapi.dev/api/quote/${ticker}?range=1d&interval=1d`);
+                const stock = res.data.results.at(0);
+
+                setName(stock.longName);
+                setPrice(`R$ ${stock.regularMarketPrice}`); // Supondo que 'regularMarketPrice' seja o valor atual.
+            } catch (error) {
+                console.error(`Erro ao buscar informações sobre a ação: ${ticker} error: [${error}]`)
+            }
+        }
+        searchForTicker(ticker);
+    }, [ticker]);
+
 
     const [suggestions, setSuggestions] = useState([]);
 
     const [tickets, setTickets] = useState([]);
     const handleAddTicker = () => {
-        setTickets(tickets => [...tickets, {ticker, name, currentPrice, quantity}]);
+        setTickets(tickets => [...tickets, {ticker, name, currentPrice: price, quantity}]);
     };
 
     const handleTickerChange = (e) => {
@@ -44,10 +59,28 @@ export default function Stocks() {
         }
     };
 
-    console.log(availableTickers)
+    const handleConfirmPosition = async () => {
+        try {
+            const newPosition = {
+                ticker,
+                quantity: parseInt(quantity),
+                price: parseFloat(price.substring(3)),
+                currency: "BRL"
+            };
 
-    return (
-        <div className="flex min-h-screen bg-slate-50 items-center flex-col gap-2">
+            const res = await axios.post("http://localhost:8080/position/new", newPosition);
+            handleNewPosition(res.data);
+        } catch (error) {
+            console.error(`Erro ao adicionar nova posição: ${error}`);
+        }
+    };
+
+    const handleNewPosition = (position) => {
+        setPositions(positions => [...positions, position]);
+    }
+
+
+    return (<div className="flex min-h-screen bg-slate-50 items-center flex-col gap-2">
             <Card className="w-[800px] h-[100%]">
                 <CardHeader>
                     <CardTitle>Adicionar novo papel:</CardTitle>
@@ -70,7 +103,7 @@ export default function Stocks() {
                                 <Label htmlFor="name">Nome</Label>
                                 <Input
                                     id="name"
-                                    defaultValue={name}
+                                    value={name}
                                     onChange={e => setName(e.target.value)}
                                     className="col-span-2 h-8"
                                 />
@@ -79,8 +112,8 @@ export default function Stocks() {
                                 <Label htmlFor="price">Preço Atual </Label>
                                 <Input
                                     id="price"
-                                    defaultValue={currentPrice}
-                                    onChange={e => setCurrentPrice(e.target.value)}
+                                    value={price}
+                                    onChange={e => setPrice(e.target.value)}
                                     className="col-span-2 h-8"
                                 />
                             </div>
@@ -93,21 +126,50 @@ export default function Stocks() {
                                     className="col-span-2 h-8"
                                 />
                             </div>
-                            <Button onClick={() => handleAddTicker()} variant='default' size='default'
-                                    className="items-center gap-4">Confirmar</Button>
+                            {ticker !== null && <Button
+                                onClick={() => handleConfirmPosition()}
+                                variant='default'
+                                size='default'
+                                className="items-center gap-4">Confirmar
+                            </Button>}
+
                         </div>
                     </div>
                 </CardContent>
             </Card>
-            <Card className="w-[800px] h-[150px]">
+            {ticker && <Card className="w-[800px] h-[100%]">
                 <CardHeader>
-                    <CardTitle>Histórico do papel:</CardTitle>
+                    <CardTitle>Sua posição em {ticker}:</CardTitle>
                     <CardDescription>Últimas adições para o papel</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <h1>R$ 15800,00</h1>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[100px]">Ticker</TableHead>
+                                <TableHead>Nome</TableHead>
+                                <TableHead>Preço Atual</TableHead>
+                                <TableHead>Quantidade</TableHead>
+                                <TableHead>Posição</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {positions.map((position, index) => {
+                                const priceStr = typeof position.price === 'string' ? position.price.substring(3) : '0';
+                                const priceNumber = Number(priceStr);
+                                const total = isNaN(priceNumber) ? 0 : priceNumber * position.quantity;
+
+                                return (<TableRow key={index}>
+                                        <TableCell className="font-medium">{position.ticker}</TableCell>
+                                        <TableCell>{position.name}</TableCell>
+                                        <TableCell>{position.price}</TableCell>
+                                        <TableCell className="text-green-700">{position.quantity}</TableCell>
+                                        <TableCell>R$ {total.toFixed(2)}</TableCell>
+                                    </TableRow>);
+                            })}
+                        </TableBody>
+                    </Table>
                 </CardContent>
-            </Card>
-        </div>
-    );
+            </Card>}
+        </div>);
 }
