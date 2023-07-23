@@ -1,10 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import {Check, ChevronsUpDown} from "lucide-react"
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import {cn} from "@/lib/utils"
+import {Button} from "@/components/ui/button"
 import {
     Command,
     CommandEmpty,
@@ -17,33 +17,24 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
+import {ScrollArea} from "@/components/ui/scroll-area";
 
-const frameworks = [
-    {
-        value: "next.js",
-        label: "Next.js",
-    },
-    {
-        value: "sveltekit",
-        label: "SvelteKit",
-    },
-    {
-        value: "nuxt.js",
-        label: "Nuxt.js",
-    },
-    {
-        value: "remix",
-        label: "Remix",
-    },
-    {
-        value: "astro",
-        label: "Astro",
-    },
-]
-
-export function Combobox() {
+export function Combobox({availableTickers, selectedTicker, setSelectedTicker, className}) {
     const [open, setOpen] = React.useState(false)
-    const [value, setValue] = React.useState("")
+
+    const [buttonWidth, setButtonWidth] = React.useState(0);
+    const buttonRef = React.useRef();
+
+    const handleSelect = (ticker) => {
+        setSelectedTicker(ticker)
+        setOpen(false)
+    }
+
+    React.useEffect(() => {
+        if (buttonRef.current) {
+            setButtonWidth(buttonRef.current.getBoundingClientRect().width);
+        }
+    }, []);
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -52,37 +43,39 @@ export function Combobox() {
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="w-[200px] justify-between"
+                    className={`w-full justify-between ${className}`}
+                    ref={buttonRef} // ref para o botão
                 >
-                    {value
-                        ? frameworks.find((framework) => framework.value === value)?.label
-                        : "Select framework..."}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    {selectedTicker || "Escolha o ticker..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[400px] p-0">
+            <PopoverContent className="p-0" style={{width: `${buttonWidth}px`}}>
                 <Command>
-                    <CommandInput placeholder="Escolha o ticker..." />
-                    <CommandEmpty>No framework found.</CommandEmpty>
-                    <CommandGroup>
-                        {frameworks.map((framework) => (
-                            <CommandItem
-                                key={framework.value}
-                                onSelect={(currentValue) => {
-                                    setValue(currentValue === value ? "" : currentValue)
-                                    setOpen(false)
-                                }}
-                            >
-                                <Check
-                                    className={cn(
-                                        "mr-2 h-4 w-4",
-                                        value === framework.value ? "opacity-100" : "opacity-0"
-                                    )}
-                                />
-                                {framework.label}
-                            </CommandItem>
-                        ))}
-                    </CommandGroup>
+                    <CommandInput placeholder="Escolha o ticker..."/>
+                    <CommandEmpty>Nenhum ticker encontrado.</CommandEmpty>
+                    <div className="min-h-[100%] max-h-[50vh] overflow-auto">
+                        <ScrollArea className="rounded-md border p-0">
+                            <CommandGroup>
+                                {availableTickers.map((ticker) => (
+                                    <CommandItem
+                                        key={ticker}
+                                        onSelect={() => {
+                                            handleSelect(ticker);
+                                        }}
+                                    >
+                                        <Check
+                                            className={cn(
+                                                "mr-2 h-4 w-4",
+                                                selectedTicker === ticker ? "opacity-100" : "opacity-0"
+                                            )}
+                                        />
+                                        {ticker}
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                        </ScrollArea>
+                    </div>
                 </Command>
             </PopoverContent>
         </Popover>
