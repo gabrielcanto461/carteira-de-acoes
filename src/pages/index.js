@@ -9,12 +9,6 @@ import Link from 'next/link'
 import axios from "axios";
 
 export default function Home() {
-
-    const [ticker, setTicker] = useState('EXPL44');
-    const [name, setName] = useState('Empresa exemplo');
-    const [currentPrice, setCurrentPrice] = useState('R$ 10.00');
-    const [quantity, setQuantity] = useState('2');
-
     const getCurrentDate = () => {
         const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
             "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
@@ -26,11 +20,10 @@ export default function Home() {
 
     const [tickets, setTickets] = useState([]);
 
-
     useEffect(() => {
         const searchForAllPositions = async () => {
             try {
-                const res = await axios.get("http://localhost:8080/position/all");
+                const res = await axios.get("http://localhost:8080/position/all/grouped");
                 setTickets(res.data);
             } catch (error) {
                 console.error("Erro ao buscar todas as posições: ", error);
@@ -39,9 +32,13 @@ export default function Home() {
         searchForAllPositions();
     }, [])
 
+    const getTicketData = (ticket) => {
+        return ticket.ticketsData.results[0];
+    }
+
     return (
         <div className="flex min-h-screen bg-slate-50 items-center flex-col gap-2">
-            <Card className="w-[800px] h-[150px]">
+            <Card className="w-[1000px] h-[150px]">
                 <CardHeader>
                     <CardTitle>Saldo Atual:</CardTitle>
                     <CardDescription>{getCurrentDate()}</CardDescription>
@@ -52,7 +49,7 @@ export default function Home() {
                     </h1>
                 </CardContent>
             </Card>
-            <Card className="w-[800px] h-[100%]">
+            <Card className="w-[1000px] h-[100%]">
                 <CardHeader>
                     <CardTitle>Principais ativos:</CardTitle>
                 </CardHeader>
@@ -61,21 +58,28 @@ export default function Home() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead></TableHead>
+                                    <TableHead>Qtd.</TableHead>
                                     <TableHead className="w-[100px]">Ticker</TableHead>
                                     <TableHead>Nome</TableHead>
                                     <TableHead>Preço Atual</TableHead>
-                                    <TableHead>Quantidade</TableHead>
-                                    <TableHead>Posição</TableHead>
+                                    <TableHead>Total investido</TableHead>
+                                    <TableHead>Rendimento</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {tickets.map((ticket, index) => (
+
                                     <TableRow key={index}>
-                                        <TableCell className="font-medium">{ticket.ticker}</TableCell>
-                                        <TableCell>Nome da empresa</TableCell> {/* Substitua por uma propriedade real quando disponível */}
-                                        <TableCell>{`R$ ${ticket.price.toFixed(2)}`}</TableCell>
-                                        <TableCell className="text-green-700">{ticket.quantity}</TableCell>
-                                        <TableCell>R$ {(ticket.price * ticket.quantity).toFixed(2)}</TableCell>
+                                        <TableCell><img className="w-10 h-10 rounded-sm" src={getTicketData(ticket).logourl}/></TableCell>
+                                        <TableCell>{ticket.quantity}</TableCell>
+                                        <TableCell className="font-medium">{getTicketData(ticket).symbol}</TableCell>
+                                        <TableCell>{getTicketData(ticket).shortName}</TableCell>
+                                        <TableCell>{`R$ ${getTicketData(ticket).regularMarketPrice.toFixed(2)}`}</TableCell>
+                                        <TableCell>R$ {ticket.netAmount.toFixed(2)}</TableCell>
+                                        <TableCell className={`font-bold ${ticket.netEarning >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                                            R$ {Math.abs(ticket.netEarning).toFixed(2)}
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

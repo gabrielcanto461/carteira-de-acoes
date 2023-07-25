@@ -40,7 +40,20 @@ export default function Stocks() {
                 console.error(`Erro ao buscar informações sobre a ação: ${ticker} error: [${error}]`)
             }
         }
+
+        const loadAllPositions = async (ticker) => {
+            try {
+                const res = await axios.get(`http://localhost:8080/position/all/${ticker}?currentPrice=0`);
+
+                const positionInfo = res.data;
+
+                setPositions(positionInfo.positions);
+            } catch (error) {
+                console.error(`Erro ao buscar informações sobre a ação: ${ticker} error: [${error}]`)
+            }
+        }
         searchForTicker(ticker);
+        loadAllPositions(ticker)
     }, [ticker]);
 
 
@@ -64,6 +77,7 @@ export default function Stocks() {
             const newPosition = {
                 ticker,
                 quantity: parseInt(quantity),
+                name,
                 price: parseFloat(price.substring(3)),
                 currency: "BRL"
             };
@@ -81,7 +95,7 @@ export default function Stocks() {
 
 
     return (<div className="flex min-h-screen bg-slate-50 items-center flex-col gap-2">
-            <Card className="w-[800px] h-[100%]">
+            <Card className="w-[1000px] h-[100%]">
                 <CardHeader>
                     <CardTitle>Adicionar novo papel:</CardTitle>
                 </CardHeader>
@@ -125,14 +139,15 @@ export default function Stocks() {
                                     onChange={e => setQuantity(e.target.value)}
                                     className="col-span-2 h-8"
                                 />
+                                <div className="col-start-2 col-end-4 justify-self-end">
+                                    {ticker !== null && <Button
+                                        onClick={() => handleConfirmPosition()}
+                                        variant='default'
+                                        size='default'
+                                        className="items-center gap-4">Confirmar
+                                    </Button>}
+                                </div>
                             </div>
-                            {ticker !== null && <Button
-                                onClick={() => handleConfirmPosition()}
-                                variant='default'
-                                size='default'
-                                className="items-center gap-4">Confirmar
-                            </Button>}
-
                         </div>
                     </div>
                 </CardContent>
