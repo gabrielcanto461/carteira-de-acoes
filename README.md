@@ -28,7 +28,8 @@ npm run dev
 
 O projeto tem uma interface do usuário amigável e intuitiva.
 ### Tela inicial:
-![image](https://github.com/gabrielcanto461/carteira-de-acoes/assets/82339578/0308f54e-8e0b-499d-a2e1-be19fc2fe198)
+![image](https://github.com/gabrielcanto461/carteira-de-acoes/assets/82339578/6e654a65-fc25-4f14-9ae8-fd3b03244779)
+
 ### Tela adicionar posição:
 ![image](https://github.com/gabrielcanto461/carteira-de-acoes/assets/82339578/a8f11d37-6a83-4c04-92ea-2bd85bbcf881)
 
@@ -40,6 +41,8 @@ Linkedin: https://www.linkedin.com/in/gabrielcant0/
 Projeto desenvolvido para ajudar no gerenciamento de minha carteira e praticar os conceitos de React e front-end.
 
 ## Próximos passos:
+- Melhorar componentização;
+- Refatorar funções;
 - Adicionar funcionalidades de gráficos;
 - Visualizar gráfico dos papeis quando selecionadas;
 - entre outros.
