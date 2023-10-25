@@ -6,8 +6,11 @@ import {Button} from "@/components/ui/button";
 import Link from 'next/link'
 import axios from "axios";
 import NavigationMenu, {Header} from "@/components/NavigationMenu";
-import {Loader2} from 'lucide-react';
+import {ClipboardEdit, Loader2, Trash} from 'lucide-react';
 import {ProgressBar} from "@/components/ProgressBar";
+import {useRouter} from "next/router";
+
+const backendHost = "http://localhost:8080/api";
 
 export const Icons = {
     spinner: Loader2,
@@ -15,7 +18,7 @@ export const Icons = {
 export default function Home() {
     const [loading, setLoading] = useState(false);
     const [tickets, setTickets] = useState([]);
-
+    const router = useRouter();
     const getCurrentDate = () => {
         const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
             "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
@@ -29,7 +32,8 @@ export default function Home() {
         const searchForAllPositions = async () => {
             setLoading(true);
             try {
-                const res = await axios.get("http://localhost:8080/position/all/grouped");
+                const res = await axios.get(`${backendHost}/positions/grouped`);
+                console.log(res.data);
                 setTickets(res.data);
             } catch (error) {
                 console.error("Erro ao buscar todas as posições: ", error);
@@ -40,8 +44,16 @@ export default function Home() {
         searchForAllPositions();
     }, [])
 
-    const getTicketData = (ticket) => {
-        return ticket.ticketsData.results[0];
+    const handleEditButton = (ticker) => {
+        // Navegar para a página Stocks e passar o ticker como parâmetro
+
+        router.push(`/stocks?ticker=${ticker}`);
+    }
+
+    const handleDeleteButton = (ticker) => {
+        // Navegar para a página Stocks e passar o ticker como parâmetro
+
+        router.push(`/stocks?ticker=${ticker}`);
     }
 
     return (
@@ -57,7 +69,7 @@ export default function Home() {
                             </CardHeader>
                             <CardContent>
                                 <h1>
-                                    R$ {tickets.reduce((acc, ticket) => acc + (ticket.investedAmount), 0).toFixed(2)}
+                                    R$ {tickets.reduce((acc, ticket) => acc + (ticket.totalInvested), 0).toFixed(2)}
                                 </h1>
                             </CardContent>
                         </Card>
@@ -80,6 +92,8 @@ export default function Home() {
                                                 <TableHead>Preço Atual</TableHead>
                                                 <TableHead>Total investido</TableHead>
                                                 <TableHead>Rendimento</TableHead>
+                                                <TableHead></TableHead>
+                                                <TableHead></TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -87,15 +101,31 @@ export default function Home() {
 
                                                 <TableRow key={index}>
                                                     <TableCell><img className="w-10 h-10 rounded-sm"
-                                                                    src={getTicketData(ticket).logourl}/></TableCell>
+                                                                    src={ticket.logo} alt=""/></TableCell>
                                                     <TableCell>{ticket.quantity}</TableCell>
                                                     <TableCell
-                                                        className="font-medium">{getTicketData(ticket).symbol}</TableCell>
-                                                    <TableCell>{`R$ ${getTicketData(ticket).regularMarketPrice.toFixed(2)}`}</TableCell>
-                                                    <TableCell>R$ {ticket.netAmount.toFixed(2)}</TableCell>
+                                                        className="font-medium">{ticket.ticker}</TableCell>
+                                                    <TableCell>{`R$ ${ticket.currentPrice.toFixed(2)}`}</TableCell>
+                                                    <TableCell>R$ {ticket.totalInvested.toFixed(2)}</TableCell>
                                                     <TableCell
-                                                        className={`font-bold ${ticket.netEarning >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                                                        R$ {Math.abs(ticket.netEarning).toFixed(2)}
+                                                        className={`font-bold ${ticket.netAmount >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                                                        R$ {Math.abs(ticket.netAmount).toFixed(2)}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Button
+                                                            onClick={() => handleEditButton(ticket.ticker)}
+                                                            size='default'
+                                                            variant='outline'
+                                                            className="items-center gap-4"><ClipboardEdit className="h-4 w-4" />
+                                                        </Button>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Button
+                                                            onClick={() => handleDeleteButton(ticket.ticker)}
+                                                            variant='outline'
+                                                            size='default'
+                                                            className="items-center gap-4"><Trash className="h-4 w-4"/>
+                                                        </Button>
                                                     </TableCell>
                                                 </TableRow>
                                             ))}

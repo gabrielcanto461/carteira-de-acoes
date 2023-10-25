@@ -8,7 +8,7 @@ export default function NavigationMenu() {
         <Card className="w-[80%] h-[75px] flex items-center justify-between bg-gray-800">
             <CardHeader className="flex items-center">
                 <Link className="ml-2" href="/">
-                    <img className="w-40 h-10 rounded-sm" src="../../next.svg" alt="Logo"/>
+                    <img className="w-40 h-10 rounded-sm" src="../../logo.svg" alt="Logo"/>
                 </Link>
             </CardHeader>
             <CardContent className="flex items-center gap-8 mr-16 mt-4">

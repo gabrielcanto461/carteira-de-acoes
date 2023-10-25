@@ -8,20 +8,36 @@ import axios from "axios";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import NavigationMenu from "@/components/NavigationMenu";
+import {useRouter} from "next/router";
+import {EditIcon, Trash} from "lucide-react";
+import {FcCancel, FcCheckmark} from "react-icons/fc";
+
+
+const backendHost = "http://localhost:8080/api";
 
 export default function Stocks() {
-    const [ticker, setTicker] = useState(null);
-    const [name, setName] = useState('');
+    const router = useRouter();
+
+    const urlTicker = router.query.ticker;
+
+    const [ticker, setTicker] = useState(urlTicker || null);
+    const [tempPrice, setTempPrice] = useState(null);
+    const [tempQuantity, setTempQuantity] = useState(null);
+
+    const [name, setName] = useState('Nome da empresa');
     const [price, setPrice] = useState('R$ 10.00');
-    const [quantity, setQuantity] = useState('2');
+    const [quantity, setQuantity] = useState('1');
     const [positions, setPositions] = useState([]);
+    const [logo, setLogo] = useState('');
     const [availableTickers, setAvailableTickers] = useState([]);
+    const [editingPositionId, setEditingPositionId] = useState(null);
 
     useEffect(() => {
         const searchForAvailableTickers = async () => {
             try {
-                const res = await axios.get('http://localhost:8080/api/available');
-                setAvailableTickers(res.data.stocks);
+                const res = await axios.get(backendHost.concat("/stocks"));
+                console.log(res.data)
+                setAvailableTickers(res.data);
             } catch (error) {
                 console.error("Erro ao buscar os dados:", error);
             }
@@ -33,11 +49,14 @@ export default function Stocks() {
         const searchForTicker = async (ticker) => {
             if (ticker != null) {
                 try {
-                    const res = await axios.get(`http://localhost:8080/api/stock/${ticker}`);
-                    const stock = res.data.results.at(0);
+                    const res = await axios.get(`${backendHost}/stocks/${ticker}`);
+                    const stock = res.data;
+
+                    console.log(stock);
 
                     setName(stock.name);
                     setPrice(`R$ ${stock.price}`);
+                    setLogo(stock.logo);
                 } catch (error) {
                     console.error(`Erro ao buscar informações sobre a ação: ${ticker} error: [${error}]`)
                 }
@@ -47,10 +66,10 @@ export default function Stocks() {
         const loadAllPositions = async (ticker) => {
             if (ticker != null) {
                 try {
-                    const res = await axios.get(`http://localhost:8080/position/all/${ticker}?currentPrice=0`);
+                    const res = await axios.get(`${backendHost}/positions?ticker=${ticker}`);
 
                     const positionInfo = res.data;
-
+                    console.log(positionInfo);
                     setPositions(positionInfo.positions);
                 } catch (error) {
                     console.error(`Erro ao buscar informações sobre a ação: ${ticker} error: [${error}]`)
@@ -65,23 +84,60 @@ export default function Stocks() {
     const handleConfirmPosition = async () => {
         try {
             const newPosition = {
-                ticker,
                 quantity: parseInt(quantity),
                 name,
                 price: parseFloat(price.substring(3)),
-                currency: "BRL"
+                currency: "BRL",
+                ticker,
+                logo
             };
 
-            const res = await axios.post("http://localhost:8080/position/new", newPosition);
-            handleNewPosition(res.data);
+            console.log(newPosition)
+
+            const res = await axios.post(backendHost.concat("/positions"), newPosition);
+
+            newPosition._id = res.data;
+            handleNewPosition(newPosition);
         } catch (error) {
             console.error(`Erro ao adicionar nova posição: ${error}`);
         }
     };
 
     const handleNewPosition = (position) => {
+        console.log(position);
         setPositions(positions => [...positions, position]);
     }
+
+    const handleEditAction = async (position) => {
+        try {
+            const res = await axios.put(`${backendHost}/positions/${position._id}`, position); // Certifique-se de enviar os dados atualizados para o backend aqui, se necessário
+
+            if (res.status === 200) {
+                setPositions(prevPositions => {
+                    return prevPositions.map(pos => {
+                        if (pos._id === position._id) {
+                            return {...position}; // Retorne a posição atualizada
+                        }
+                        return pos; // Retorne as outras posições inalteradas
+                    });
+                });
+            }
+        } catch (error) {
+            console.error(`Erro ao editar a posição: ${error}`);
+        }
+    };
+
+    const handleDeleteAction = async (position) => {
+        try {
+            const res = await axios.delete(`${backendHost}/positions/${position._id}`);
+
+            if (res.status === 200) {
+                setPositions(prevPositions => prevPositions.filter(pos => pos._id !== position._id));
+            }
+        } catch (error) {
+            console.error(`Erro ao deletar a posição: ${error}`);
+        }
+    };
 
     return (<div className="flex min-h-screen bg-slate-50 items-center flex-col gap-2">
         <NavigationMenu></NavigationMenu>
@@ -154,22 +210,88 @@ export default function Stocks() {
                             <TableHead>Preço</TableHead>
                             <TableHead>Quantidade</TableHead>
                             <TableHead>Posição</TableHead>
+                            <TableHead></TableHead>
+                            <TableHead></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {positions.map((position, index) => {
+                        {positions.map((position) => {
                             const total = isNaN(position.price) ? 0 : position.price * position.quantity;
-
-                            return (<TableRow key={index}>
-                                <TableCell>{position.price}</TableCell>
-                                <TableCell>{position.quantity}</TableCell>
+                            const isEditing = position._id === editingPositionId;
+                            return (<TableRow key={position._id}>
+                                <TableCell>
+                                    {isEditing ? (
+                                        <Input
+                                            value={tempPrice || `R$ ${position.price}`}
+                                            onChange={e => setTempPrice(e.target.value)}
+                                        />
+                                    ) : (
+                                        `R$ ${position.price}`
+                                    )}
+                                </TableCell>
+                                <TableCell>
+                                    {isEditing ? (
+                                        <Input
+                                            value={tempQuantity || position.quantity.toString()}
+                                            onChange={e => setTempQuantity(e.target.value)}
+                                        />
+                                    ) : (
+                                        position.quantity
+                                    )}
+                                </TableCell>
                                 <TableCell>R$ {total.toFixed(2)}</TableCell>
+                                <TableCell>
+                                    {isEditing ? (
+                                        <>
+                                            <Button variant='outline' onClick={() => {
+                                                const updatedPosition = {
+                                                    ...position,
+                                                    price: parseFloat(tempPrice.replace('R$', '').trim()),
+                                                    quantity: parseInt(tempQuantity),
+                                                    date: new Date()
+                                                };
+                                                handleEditAction(updatedPosition); // 3. Chame handleEditAction
+                                                setEditingPositionId(null); // Sai do modo de edição após confirmar
+                                                setTempPrice(null); // Limpe os valores temporários
+                                                setTempQuantity(null);
+                                            }}>
+                                                <FcCheckmark className={'h-4 w-4'}/>
+                                            </Button>
+                                            <Button variant='outline' onClick={() => {
+                                                setEditingPositionId(null); // Sai do modo de edição após confirmar
+                                                setTempPrice(null); // Limpe os valores temporários
+                                                setTempQuantity(null);
+                                            }}><FcCancel className={'h-4 w-4'}/>
+                                            </Button>
+
+                                        </>
+                                    ) : (
+                                        <Button variant='outline' onClick={() => {
+                                            setEditingPositionId(position._id);
+                                            setTempPrice(`R$ ${position.price}`);
+                                            setTempQuantity(position.quantity.toString());
+                                        }}>
+                                            <EditIcon className='h-4 w-4'/>
+                                        </Button>
+                                    )}
+                                </TableCell>
+                                <TableCell>
+                                    <Button
+                                        onClick={() => handleDeleteAction(position)}
+                                        variant='outline'
+                                        size='default'
+                                        className="items-center gap-4"><Trash className="h-4 w-4"/>
+                                    </Button>
+                                </TableCell>
                             </TableRow>);
                         })}
                         <TableRow className="font-bold bg-gray-200">
                             <TableCell>Total</TableCell>
+                            <TableCell></TableCell>
                             <TableCell>{positions.reduce((sum, position) => sum + position.quantity, 0)}</TableCell>
                             <TableCell>R$ {positions.reduce((sum, position) => sum + (isNaN(position.price) ? 0 : position.price * position.quantity), 0).toFixed(2)}</TableCell>
+                            <TableCell></TableCell>
+                            <TableCell></TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
