@@ -57,7 +57,7 @@ export default function Home() {
                             </CardHeader>
                             <CardContent>
                                 <h1>
-                                    R$ {tickets.reduce((acc, ticket) => acc + (ticket.netEarning), 0).toFixed(2)}
+                                    R$ {tickets.reduce((acc, ticket) => acc + (ticket.investedAmount), 0).toFixed(2)}
                                 </h1>
                             </CardContent>
                         </Card>

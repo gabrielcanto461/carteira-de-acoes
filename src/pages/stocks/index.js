@@ -11,7 +11,7 @@ import NavigationMenu from "@/components/NavigationMenu";
 
 export default function Stocks() {
     const [ticker, setTicker] = useState(null);
-    const [name, setName] = useState('Nome da empresa');
+    const [name, setName] = useState('');
     const [price, setPrice] = useState('R$ 10.00');
     const [quantity, setQuantity] = useState('2');
     const [positions, setPositions] = useState([]);
@@ -20,7 +20,7 @@ export default function Stocks() {
     useEffect(() => {
         const searchForAvailableTickers = async () => {
             try {
-                const res = await axios.get('https://brapi.dev/api/available');
+                const res = await axios.get('http://localhost:8080/api/available');
                 setAvailableTickers(res.data.stocks);
             } catch (error) {
                 console.error("Erro ao buscar os dados:", error);
@@ -33,11 +33,11 @@ export default function Stocks() {
         const searchForTicker = async (ticker) => {
             if (ticker != null) {
                 try {
-                    const res = await axios.get(`https://brapi.dev/api/quote/${ticker}?range=1d&interval=1d`);
+                    const res = await axios.get(`http://localhost:8080/api/stock/${ticker}`);
                     const stock = res.data.results.at(0);
 
-                    setName(stock.longName);
-                    setPrice(`R$ ${stock.regularMarketPrice}`); // Supondo que 'regularMarketPrice' seja o valor atual.
+                    setName(stock.name);
+                    setPrice(`R$ ${stock.price}`);
                 } catch (error) {
                     console.error(`Erro ao buscar informações sobre a ação: ${ticker} error: [${error}]`)
                 }
