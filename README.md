@@ -1,34 +1,48 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Aplicativo de Gerenciamento de Ações
 
-## Getting Started
+Aplicativo para gerenciamento de uma carteira de ações desenvolvido utilizando as ferramentas:  
+- Next.js e React;
+- Shadcn/ui;
+- Tailwind;
+Como fonte de dados foi utilizada a API [brapi.dev](https://brapi.dev/) e desenvolvida uma API SpringBoot, [carteira-de-acoes-backend](https://github.com/gabrielcanto461/carteira-de-acoes-backend/), para salvar os registros e realizar as manipulações necessárias.
 
-First, run the development server:
+
+## Instalação
+Para instalar a aplicação e utilizar em seu ambiente:
+
+```bash
+git clone https://github.com/gabrielcanto461/carteira-de-acoes.git
+cd carteira-de-acoes
+npm install
+```
+
+## Uso
+
+Para rodar a aplicação em desenvolvimento:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## UI
 
-You can start editing the page by modifying `app/index.js`. The page auto-updates as you edit the file.
+O projeto tem uma interface do usuário amigável e intuitiva.
+### Tela inicial:
+![image](https://github.com/gabrielcanto461/carteira-de-acoes/assets/82339578/6e654a65-fc25-4f14-9ae8-fd3b03244779)
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Tela adicionar posição:
+![image](https://github.com/gabrielcanto461/carteira-de-acoes/assets/82339578/a8f11d37-6a83-4c04-92ea-2bd85bbcf881)
 
-## Learn More
+## Desenvolvimento
 
-To learn more about Next.js, take a look at the following resources:
+Desenvolvido por Gabriel Augusto  
+Linkedin: https://www.linkedin.com/in/gabrielcant0/
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Projeto desenvolvido para ajudar no gerenciamento de minha carteira e praticar os conceitos de React e front-end.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Próximos passos:
+- Melhorar componentização;
+- Refatorar funções;
+- Adicionar funcionalidades de gráficos;
+- Visualizar gráfico dos papeis quando selecionadas;
+- entre outros.
