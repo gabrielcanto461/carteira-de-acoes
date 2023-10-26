@@ -110,15 +110,15 @@ export default function Stocks() {
 
     const handleEditAction = async (position) => {
         try {
-            const res = await axios.put(`${backendHost}/positions/${position._id}`, position); // Certifique-se de enviar os dados atualizados para o backend aqui, se necessário
+            const res = await axios.put(`${backendHost}/positions/${position._id}`, position);
 
             if (res.status === 200) {
                 setPositions(prevPositions => {
                     return prevPositions.map(pos => {
                         if (pos._id === position._id) {
-                            return {...position}; // Retorne a posição atualizada
+                            return {...position};
                         }
-                        return pos; // Retorne as outras posições inalteradas
+                        return pos;
                     });
                 });
             }
@@ -250,16 +250,16 @@ export default function Stocks() {
                                                     quantity: parseInt(tempQuantity),
                                                     date: new Date()
                                                 };
-                                                handleEditAction(updatedPosition); // 3. Chame handleEditAction
-                                                setEditingPositionId(null); // Sai do modo de edição após confirmar
-                                                setTempPrice(null); // Limpe os valores temporários
+                                                handleEditAction(updatedPosition);
+                                                setEditingPositionId(null);
+                                                setTempPrice(null);
                                                 setTempQuantity(null);
                                             }}>
                                                 <FcCheckmark className={'h-4 w-4'}/>
                                             </Button>
                                             <Button variant='outline' onClick={() => {
-                                                setEditingPositionId(null); // Sai do modo de edição após confirmar
-                                                setTempPrice(null); // Limpe os valores temporários
+                                                setEditingPositionId(null);
+                                                setTempPrice(null);
                                                 setTempQuantity(null);
                                             }}><FcCancel className={'h-4 w-4'}/>
                                             </Button>

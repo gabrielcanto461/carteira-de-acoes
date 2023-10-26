@@ -45,14 +45,10 @@ export default function Home() {
     }, [])
 
     const handleEditButton = (ticker) => {
-        // Navegar para a página Stocks e passar o ticker como parâmetro
-
         router.push(`/stocks?ticker=${ticker}`);
     }
 
     const handleDeleteButton = (ticker) => {
-        // Navegar para a página Stocks e passar o ticker como parâmetro
-
         router.push(`/stocks?ticker=${ticker}`);
     }
 
