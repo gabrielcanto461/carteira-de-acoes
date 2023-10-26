@@ -4,7 +4,7 @@ Aplicativo para gerenciamento de uma carteira de ações desenvolvido utilizando
 - Next.js e React;
 - Shadcn/ui;
 - Tailwind;
-Como fonte de dados foi utilizada a API [brapi.dev](https://brapi.dev/) e desenvolvida uma API SpringBoot, [carteira-de-acoes-backend](https://github.com/gabrielcanto461/carteira-de-acoes-backend/), para salvar os registros e realizar as manipulações necessárias.
+Como fonte de dados foi utilizada a API [brapi.dev](https://brapi.dev/) e desenvolvida uma API NodeJS, [carteira-de-acoes-backend](https://github.com/gabrielcanto461/carteira-de-acoes-backend/), para salvar os registros e realizar as manipulações necessárias.
 
 
 ## Instalação
@@ -32,17 +32,3 @@ O projeto tem uma interface do usuário amigável e intuitiva.
 
 ### Tela adicionar posição:
 ![image](https://github.com/gabrielcanto461/carteira-de-acoes/assets/82339578/a8f11d37-6a83-4c04-92ea-2bd85bbcf881)
-
-## Desenvolvimento
-
-Desenvolvido por Gabriel Augusto  
-Linkedin: https://www.linkedin.com/in/gabrielcant0/
-
-Projeto desenvolvido para ajudar no gerenciamento de minha carteira e praticar os conceitos de React e front-end.
-
-## Próximos passos:
-- Melhorar componentização;
-- Refatorar funções;
-- Adicionar funcionalidades de gráficos;
-- Visualizar gráfico dos papeis quando selecionadas;
-- entre outros.
